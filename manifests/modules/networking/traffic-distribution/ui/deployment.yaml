@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ui
+spec:
+  replicas: 3
+  template:
+    metadata:
+      annotations:
+        instrumentation.opentelemetry.io/inject-sdk: other/adot-instrumentation
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - ui
+              topologyKey: topology.kubernetes.io/zone
+            weight: 100
+      containers:
+      - name: ui
+        env:
+        - name: ENDPOINTS_HTTP_KEEPALIVE
+          value: "false"
+        - name: OTEL_SERVICE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: JAVA_OPTS
+          value: -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/urandom

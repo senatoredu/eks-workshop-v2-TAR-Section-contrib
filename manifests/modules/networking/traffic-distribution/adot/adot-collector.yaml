@@ -1,0 +1,28 @@
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: adot
+  namespace: other
+spec:
+  image: public.ecr.aws/aws-observability/aws-otel-collector:v0.40.0
+  serviceAccount: adot-collector
+  mode: deployment
+  config: 
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+    exporters:  
+      awsxray: 
+        region: eu-west-1
+    extensions:
+      awsproxy:
+    service:
+      extensions: [awsproxy]
+      pipelines:
+        traces:
+          receivers: [otlp]
+          exporters: [awsxray]
