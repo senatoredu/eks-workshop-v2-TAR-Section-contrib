@@ -1,0 +1,16 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: adot-instrumentation
+  namespace: other
+spec:
+  env:
+  - name: OTEL_JAVAAGENT_ENABLED
+    value: "true"
+  exporter:
+    endpoint: http://adot-collector.other.svc.cluster.local:4317
+  propagators:
+  - tracecontext
+  - baggage
+  sampler:
+    type: always_on
