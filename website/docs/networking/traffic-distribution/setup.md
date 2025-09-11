@@ -3,7 +3,7 @@ title: "Configuring Traffic Distribution"
 sidebar_position: 20
 ---
 
-In this lab we are going to confirm the default traffic routing setup for the sample application with a focus on routing between the UI and Catalog components.
+In this lab we are going to confirm the default traffic routing setup for the sample application with a focus on routing between the UI and Catalog components through a Service.
 
 Currently there are 3 nodes deployed across the 3 different AZs, you can confirm that with the below command: 
 
@@ -29,12 +29,11 @@ NAME                       READY   STATUS    RESTARTS        AGE   IP           
 catalog-58f5d94456-2ltxj   1/1     Running   3 (4d16h ago)   72d   10.42.116.225   ip-10-42-117-145.eu-west-1.compute.internal   <none>           <none>
 catalog-58f5d94456-jgskm   1/1     Running   3 (4d16h ago)   72d   10.42.150.167   ip-10-42-141-139.eu-west-1.compute.internal   <none>           <none>
 catalog-58f5d94456-qkcmp   1/1     Running   3 (4d16h ago)   72d   10.42.185.86    ip-10-42-181-156.eu-west-1.compute.internal   <none>           <none>
-catalog-mysql-0            1/1     Running   1 (4d16h ago)   72d  
 ```
 
 For this lab, we use observability tools (OpenTelemetry and AWS X-Ray) to help us visualize the behavior of Traffic Distribution.
 
-As part of the preparation of the Lab environment which we ran previously there were different [AWS Distro for Open Telemetry(ADOT)](https://aws.amazon.com/otel/) components that got deployed in the EKS Cluster. 
+As part of the preparation of the Lab environment which we ran previously there were different [AWS Distro for Open Telemetry(ADOT)](https://aws.amazon.com/otel/) components that got deployed in the EKS Cluster that will collect traces from UI and Catalog components and export it to AWS X-Ray to allow us visualize the traffic flow. 
 
 Let’s confirm that they are running:
 
@@ -59,11 +58,9 @@ NAME   MODE         VERSION   READY   AGE   IMAGE                               
 adot   deployment   0.104.0   1/1     72d   public.ecr.aws/aws-observability/aws-otel-collector:v0.40.0   managed
 ```
 
-For now, the OpenTelemetry components have no actual effect on the EKS cluster or the application.
 
 
-
-Now that we have 3 pods of each of the UI and Catalog component we will generate a load test to simulate traffic between them to see how traffic is routed. We’d use the [hey](https://github.com/rakyll/hey) program to generate HTTP Requests traffic to UI’s load balancer by running the below command:
+Now that we have 3 pods each of the UI and Catalog component we will generate a load test to simulate traffic between them to see how traffic is routed. We’d use the [hey](https://github.com/rakyll/hey) program to generate HTTP Requests traffic to UI’s load balancer by running the below command:
 
 
 
@@ -75,7 +72,12 @@ $ kubectl run load-generator \
 ```
 
 
-Once this is done navigate to the [AWS X-Ray Console](https://console.aws.amazon.com/xray/home), where you’d find a visual Trace Map of the traffic flow from client to ui to catalog.
+Once this is done navigate to the X-Ray console where you’d find a visual Trace Map of the traffic flow from client to ui to catalog: 
+
+<ConsoleButton url="https://console.aws.amazon.com/xray/home" service="xray" label="Open X-Ray console"/>
 
 
-You’d notice from the Trace map that traffic from each of the UI pods is sent to all 3 Catalog pods in all 3 AZs.
+You’d notice from the Trace map that traffic from each of the UI pods is sent to each of the 3 Catalog pods in all 3 AZs.
+
+
+![Architecture Diagram](./assets/trafficdistribution-before.png)
