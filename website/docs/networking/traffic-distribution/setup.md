@@ -74,8 +74,11 @@ $ kubectl run load-generator \
 
 Once this is done navigate to the X-Ray console where you’d find a visual Trace Map of the traffic flow from client to ui to catalog: 
 
-<ConsoleButton url="https://console.aws.amazon.com/xray/home" service="xray" label="Open X-Ray console"/>
-
+<ConsoleButton
+  url="https://console.aws.amazon.com/cloudwatch/home#xray:service-map/"
+  service="cloudwatch"
+  label="Open X-Ray console"
+/>
 
 You’d notice from the Trace map that traffic from each of the UI pods is sent to each of the 3 Catalog pods in all 3 AZs.
 
