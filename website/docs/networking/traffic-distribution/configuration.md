@@ -8,7 +8,7 @@ Next you’re going to configure Traffic Distribution, then re-run the load test
 Let’s configure Traffic Distribution on the Catalog Service by running the following command: 
 
 ```bash
-$ kubectl patch service catalog -n catalog -p   '{"spec": {"trafficDistribution": "PreferClose"}}'
+$ kubectl patch service catalog -n catalog -p   '{"spec": {"trafficDistribution": "PreferSameZone"}}'
 ```
 
 To confirm that Traffic Distribution is configured you run the following command: 
