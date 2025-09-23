@@ -7,7 +7,7 @@ spec:
   template:
     metadata:
       annotations:
-        instrumentation.opentelemetry.io/inject-sdk: other/adot-instrumentation
+        instrumentation.opentelemetry.io/inject-java: other/adot-instrumentation
     spec:
       affinity:
         podAntiAffinity:
@@ -24,6 +24,10 @@ spec:
       containers:
       - name: ui
         env:
+        - name: JAVA_TOOL_OPTIONS
+          value: "-Dotel.java.global-autoconfigure.enabled=true"
+        - name: OTEL_METRICS_EXPORTER
+          value: "none"
         - name: ENDPOINTS_HTTP_KEEPALIVE
           value: "false"
         - name: OTEL_SERVICE_NAME
