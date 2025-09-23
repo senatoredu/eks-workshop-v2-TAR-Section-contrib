@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog
+  namespace: catalog
+spec:
+  replicas: 3
+  template:
+    metadata:
+      annotations:
+        instrumentation.opentelemetry.io/inject-sdk: other/adot-instrumentation
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - catalog
+              topologyKey: topology.kubernetes.io/zone
+            weight: 100
+      containers:
+      - name: catalog
+        env:
+        - name: OTEL_SERVICE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
