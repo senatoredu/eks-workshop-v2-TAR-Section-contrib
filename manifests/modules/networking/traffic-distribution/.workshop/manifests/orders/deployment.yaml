@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders
+spec:
+  replicas: 3
+  template:
+    metadata:
+      annotations:
+        instrumentation.opentelemetry.io/inject-java: other/adot-instrumentation
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - orders
+              topologyKey: topology.kubernetes.io/zone
+            weight: 100
+      containers:
+      - name: orders 
+        env:
+        - name: JAVA_TOOL_OPTIONS
+          value: "-Dotel.java.global-autoconfigure.enabled=true"
+        - name: OTEL_METRICS_EXPORTER
+          value: "none"
+        - name: ENDPOINTS_HTTP_KEEPALIVE
+          value: "false"
+        - name: OTEL_SERVICE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: OTEL_INSTRUMENTATION_HTTP_SERVER_CAPTURE_REQUEST_HEADERS
+          value: traceparent,tracestate
+        - name: JAVA_OPTS
+          value: -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/urandom

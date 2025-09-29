@@ -7,7 +7,7 @@ logmessage "Deleting OpenTelemetry collectors and instrumentation..."
 delete-all-if-crd-exists opentelemetrycollectors.opentelemetry.io
 delete-all-if-crd-exists instrumentations.opentelemetry.io
 
-kubectl delete namespace other --ignore-not-found=true
+kubectl delete -n other pod load-generator --ignore-not-found
 
 kubectl delete namespace opentelemetry-operator-system --ignore-not-found=true
 

@@ -4,13 +4,21 @@ metadata:
   name: adot-instrumentation
   namespace: other
 spec:
-  env:
-  - name: OTEL_JAVAAGENT_ENABLED
-    value: "true"
   exporter:
     endpoint: http://adot-collector.other.svc.cluster.local:4317
   propagators:
   - tracecontext
   - baggage
   sampler:
-    type: always_on
+    type: parentbased_traceidratio
+    argument: "0.3"  # 30% sampling
+  java:
+    env:
+    - name: OTEL_JAVAAGENT_ENABLED
+      value: "true"
+    - name: OTEL_METRICS_EXPORTER
+      value: "none"
+  nodejs:
+    env:
+    - name: OTEL_METRICS_EXPORTER
+      value: "none"
