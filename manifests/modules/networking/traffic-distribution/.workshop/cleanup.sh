@@ -9,6 +9,10 @@ delete-all-if-crd-exists instrumentations.opentelemetry.io
 
 kubectl delete -n other pod load-generator --ignore-not-found
 
+logmessage "Removing trafficDistribution setting from Orders service..."
+
+kubectl patch service orders -n orders --type='json' -p='[{"op": "remove", "path": "/spec/trafficDistribution"}]' --ignore-not-found
+
 logmessage "Deleting sequential scaling job and RBAC resources..."
 
 kubectl delete job sequential-scaling -n other --ignore-not-found
