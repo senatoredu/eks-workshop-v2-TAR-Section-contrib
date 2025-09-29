@@ -1,0 +1,71 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sequential-scaling
+  namespace: other
+spec:
+  template:
+    spec:
+      serviceAccountName: sequential-scaler
+      containers:
+      - name: scaler
+        image: alpine/k8s:1.28.2
+        command:
+        - /bin/bash
+        - -c
+        - |
+          set -e
+          echo "Starting sequential scaling..."
+          
+          # Phase 1: Scale checkout to 3 replicas
+          echo "Scaling checkout to 3 replicas..."
+          kubectl scale deployment checkout -n checkout --replicas=3
+          kubectl wait --for=condition=available deployment/checkout -n checkout --timeout=300s 2>/dev/null
+          echo "Checkout scaling complete"
+          
+          # Phase 2: Scale orders to 3 replicas  
+          echo "Scaling orders to 3 replicas..."
+          kubectl scale deployment orders -n orders --replicas=3
+          kubectl wait --for=condition=available deployment/orders -n orders --timeout=300s 2>/dev/null
+          echo "Orders scaling complete"
+          
+          # Phase 3: Scale UI to 3 replicas
+          echo "Scaling UI to 3 replicas..."
+          kubectl scale deployment ui -n ui --replicas=3
+          kubectl wait --for=condition=available deployment/ui -n ui --timeout=300s 2>/dev/null
+          echo "UI scaling complete"
+          
+          echo "Sequential scaling completed successfully!"
+      restartPolicy: OnFailure
+  backoffLimit: 3
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sequential-scaler
+  namespace: other
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: sequential-scaler
+rules:
+- apiGroups: ["apps"]
+  resources: ["deployments", "deployments/scale"]
+  verbs: ["get", "list", "patch", "update"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: sequential-scaler
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: sequential-scaler
+subjects:
+- kind: ServiceAccount
+  name: sequential-scaler
+  namespace: other

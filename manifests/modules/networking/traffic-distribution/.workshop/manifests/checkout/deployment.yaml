@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: checkout
 spec:
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       annotations:
@@ -18,6 +18,10 @@ spec:
                 operator: In
                 values:
                 - checkout
+              - key: app.kubernetes.io/component  
+                operator: In
+                values:
+                - service                  
             topologyKey: topology.kubernetes.io/zone
       containers:
       - name: checkout 

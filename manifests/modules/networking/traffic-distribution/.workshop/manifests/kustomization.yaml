@@ -5,3 +5,4 @@ resources:
   - checkout/
   - orders/
   - ui/
+  - sequential-scaling-job.yaml
