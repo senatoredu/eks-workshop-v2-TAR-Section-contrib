@@ -12,15 +12,13 @@ spec:
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-          - podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app.kubernetes.io/name
-                  operator: In
-                  values:
-                  - checkout
-              topologyKey: topology.kubernetes.io/zone
-            weight: 100
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                - checkout
+            topologyKey: topology.kubernetes.io/zone
       containers:
       - name: checkout 
         env:
