@@ -17,11 +17,8 @@ spec:
             endpoint: 0.0.0.0:4318
     exporters:  
       awsxray: 
-        region: eu-west-1
-    extensions:
-      awsproxy:
+        region: ap-southeast-2
     service:
-      extensions: [awsproxy]
       pipelines:
         traces:
           receivers: [otlp]
