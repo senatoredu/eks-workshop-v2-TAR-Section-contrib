@@ -87,7 +87,7 @@ for pod in $checkout_pods; do
     
     trace_count=$(echo "$traces" | jq '.TraceSummaries | length' 2>/dev/null || echo "0")
     
-    if [ "$trace_count" -gt 0 ]; then
+    if [ "${trace_count:-0}" -gt 0 ]; then
         trace_ids=$(echo "$traces" | jq -r '.TraceSummaries[].Id' | head -3)
         trace_ids_array=$(echo "$trace_ids" | jq -R . | jq -s .)
         
